@@ -1,10 +1,7 @@
+import MapContainer from '@components/MapContainer';
+
 const App = () => {
-  return (
-    <>
-      <h1>Vite + React</h1>
-      <div>Hello</div>
-    </>
-  );
+  return <MapContainer />;
 };
 
 export default App;
