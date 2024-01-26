@@ -1,14 +1,16 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/no-shadow */
 import { useState, useEffect } from 'react';
 import {
   collection,
-  addDoc,
   query,
   onSnapshot,
   getFirestore,
   deleteDoc,
   doc,
   updateDoc,
+  setDoc,
+  writeBatch,
 } from 'firebase/firestore';
 import { IQuest } from '@shared/interfaces';
 
@@ -30,9 +32,40 @@ const useFirestoreMarkers = () => {
     };
   }, [db]);
 
+  useEffect(() => {
+    const updateLabels = async () => {
+      const updatedMarkers: IQuest[] = [];
+
+      markers.forEach((marker) => {
+        const markerRef = doc(db, 'markers', marker.id);
+        if (markerRef.id === `${marker.id}`) {
+          updatedMarkers.push(marker);
+        }
+      });
+
+      if (updatedMarkers.length > 0) {
+        const batch = writeBatch(db);
+        updatedMarkers.sort(
+          (a, b) =>
+            new Date(a.timeStamp).getTime() - new Date(b.timeStamp).getTime()
+        );
+
+        updatedMarkers.forEach((marker, index) => {
+          const markerRef = doc(db, 'markers', marker.id);
+          batch.update(markerRef, { label: `${index + 1}` });
+        });
+
+        await batch.commit();
+      }
+    };
+
+    updateLabels();
+  }, [db, markers]);
+
   const addQuestMarker = async (newMarker: IQuest) => {
     try {
-      await addDoc(collection(db, 'markers'), newMarker);
+      const markerRef = doc(db, 'markers', newMarker.id);
+      await setDoc(markerRef, newMarker);
     } catch (error) {
       throw new Error('Error adding quest marker...');
     }
@@ -52,7 +85,8 @@ const useFirestoreMarkers = () => {
 
   const deleteQuestMarker = async (markerId: string) => {
     try {
-      await deleteDoc(doc(db, 'markers', markerId));
+      const markerRef = doc(db, 'markers', markerId);
+      await deleteDoc(markerRef);
     } catch (error) {
       throw new Error('Error delete quest marker...');
     }

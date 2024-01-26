@@ -23,15 +23,12 @@
     /* Alias */
     "paths": {
       "@/*": ["src/*"],
-      "@assets/*": ["src/assets/*"],
       "@components/*": ["src/components/*"],
       "@shared/*": ["src/shared/*"],
       "@hooks/*": ["src/hooks/*"],
-      "@helpers/*": ["src/helpers/*"]
     },
-
-    "baseUrl": "."
+    "baseUrl": ".",
   },
   "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "references": [{ "path": "./tsconfig.node.json" }],
 }

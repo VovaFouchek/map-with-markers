@@ -1,24 +1,17 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable prettier/prettier */
-/* eslint-disable no-plusplus */
 
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { nanoid } from 'nanoid';
 import { IQuest } from '@shared/interfaces';
-import useFirestoreMarkers from '../../hook/useMarkersStore';
+import useFirestoreMarkers from '@hooks/useMarkersStore';
 
 const INITIAL_POSITION = { lat: 43.64, lng: -79.41 };
 const INITIAL_ZOOM = 8;
-const styleContainer = { width: '90vw', height: '90vh', margin: 'auto' };
-let labelIndex = 1;
+const styleContainer = { width: '90vw', height: '100vh', margin: 'auto' };
 
 const MapContainer = () => {
-  const { markers, setMarkers, updateQuestMarker, deleteQuestMarker } = useFirestoreMarkers();
-
-  const getNextLabel = () => {
-    const label = labelIndex++;
-    return label.toString();
-  };
+  const { markers, setMarkers, addQuestMarker, updateQuestMarker, deleteQuestMarker } = useFirestoreMarkers();
 
   const handleMapClick = (event: google.maps.MapMouseEvent) => {
     const newMarker: IQuest = {
@@ -27,11 +20,10 @@ const MapContainer = () => {
         lat: event.latLng!.lat(),
         lng: event.latLng!.lng(),
       },
-      label: getNextLabel(),
+      label: (markers.length + 1).toString(),
       timeStamp: new Date().toISOString(),
     };
-
-    // addQuestMarker(newMarker)
+    addQuestMarker(newMarker)
     setMarkers((prevMarkers) => [...prevMarkers, newMarker]);
   };
 
@@ -39,7 +31,7 @@ const MapContainer = () => {
     id: string,
     event: google.maps.MapMouseEvent
   ) => {
-    const updatedData = {
+    const updatedMarker = {
       location: {
         lat: event.latLng!.lat(),
         lng: event.latLng!.lng(),
@@ -51,12 +43,11 @@ const MapContainer = () => {
       marker.id === id
         ? {
           ...marker,
-          updatedData
+          updatedMarker
         }
         : marker
     );
-
-    updateQuestMarker(id, updatedData);
+    updateQuestMarker(id, updatedMarker);
     setMarkers(newMarkers);
   };
 
@@ -76,12 +67,11 @@ const MapContainer = () => {
         center={INITIAL_POSITION}
         zoom={INITIAL_ZOOM}
       >
-
-        {markers?.map((marker, index) => (
+        {markers?.map((marker) => (
           <Marker
             key={marker.id}
             position={marker.location}
-            label={(index + 1).toString()}
+            label={marker.label}
             draggable
             onClick={() => handleDeleteMarker(marker.id)}
             onDragEnd={(event) => handleMarkerDragEnd(marker.id, event)}
