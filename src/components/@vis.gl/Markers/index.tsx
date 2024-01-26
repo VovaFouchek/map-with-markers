@@ -15,7 +15,6 @@ const Markers: React.FC<MarkersProps> = ({ points }) => {
   const [markers, setMarkers] = useState<Record<string, TClustererMarker>>({});
   const clusterer = useRef<MarkerClusterer | null>(null);
 
-  // Initialize MarkerClusterer
   useEffect(() => {
     if (!map) return;
     if (!clusterer.current) {
@@ -23,7 +22,6 @@ const Markers: React.FC<MarkersProps> = ({ points }) => {
     }
   }, [map]);
 
-  // Update markers
   useEffect(() => {
     clusterer.current?.clearMarkers();
     clusterer.current?.addMarkers(Object.values(markers));

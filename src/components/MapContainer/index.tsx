@@ -1,43 +1,102 @@
-import { APIProvider, Map } from '@vis.gl/react-google-maps';
+/* eslint-disable prettier/prettier */
+/* eslint-disable no-plusplus */
+import { useState } from 'react';
 
+import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import { nanoid } from 'nanoid';
 import { IQuest } from '@shared/interfaces';
-import Markers from '../Markers';
 
-const quests: IQuest[] = [
-  {
-    id: 'cwZ07CDmyl6Ln1z12J-CP',
-    location: {
-      lat: 43.64,
-      lng: -79.41,
-    },
-    timeStamp: '',
-  },
-  {
-    id: 'cwZ07CDmyl6Ln6z12J-CD',
-    location: {
-      lat: 43.74,
-      lng: -79.71,
-    },
-    timeStamp: '',
-  },
-];
-// const labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-// const labelIndex = 0;
+const INITIAL_POSITION = { lat: 43.64, lng: -79.41 };
+const INITIAL_ZOOM = 8;
+const styleContainer = { width: '100%', height: '90vh' };
+let labelIndex = 1;
 
 const MapContainer = () => {
-  const initialPosition = { lat: 43.64, lng: -79.41 };
-  const initialZoom = 10;
+  const [markers, setMarkers] = useState<IQuest[]>([]);
 
-  // const [markers, setMarkers] = useState(points);
+  const getNextLabel = () => {
+    const label = labelIndex++;
+    return label.toString();
+  };
+
+  const handleMapClick = (event: google.maps.MapMouseEvent) => {
+    const newMarker: IQuest = {
+      id: nanoid(),
+      location: {
+        lat: event.latLng!.lat(),
+        lng: event.latLng!.lng(),
+      },
+      label: getNextLabel(),
+      timeStamp: new Date().toISOString(),
+    };
+
+    setMarkers((prevMarkers) => [...prevMarkers, newMarker]);
+  };
+
+  const handleMarkerDragEnd = (
+    id: string,
+    event: google.maps.MapMouseEvent
+  ) => {
+    const newMarkers = markers.map((marker) =>
+      marker.id === id
+        ? {
+          ...marker,
+          location: {
+            lat: event.latLng!.lat(),
+            lng: event.latLng!.lng(),
+          },
+        }
+        : marker
+    );
+
+    setMarkers(newMarkers);
+  };
+
+  const handleDeleteMarker = (id: string) => {
+    const newMarkers = markers.filter((marker) => marker.id !== id);
+
+    setMarkers(newMarkers);
+  };
 
   return (
-    <div style={{ height: '100vh', width: '100%' }}>
-      <APIProvider apiKey={import.meta.env.VITE_PUBLIC_GOOGLE_MAPS_API_KEY}>
-        <Map center={initialPosition} zoom={initialZoom}>
-          <Markers points={quests} />
-        </Map>
-      </APIProvider>
-    </div>
+    <LoadScript
+      googleMapsApiKey={import.meta.env.VITE_PUBLIC_GOOGLE_MAPS_API_KEY}
+    >
+      <GoogleMap
+        onClick={handleMapClick}
+        mapContainerStyle={styleContainer}
+        center={INITIAL_POSITION}
+        zoom={INITIAL_ZOOM}
+      >
+        {/* <MarkerClusterer averageCenter enableRetinaIcons gridSize={60}>
+          {(clusterer) =>
+            markers?.map((marker) => (
+              <Marker
+                key={marker.id}
+                position={marker.location}
+                label={marker.label}
+                clusterer={clusterer}
+                draggable
+                onClick={() => handleDeleteMarker(marker.id)}
+                onDragEnd={(event) => handleMarkerDragEnd(marker.id, event)}
+              />
+            ))
+          }
+        </MarkerClusterer> */}
+        {markers?.map((marker, index) => (
+          <Marker
+            key={marker.id}
+            position={marker.location}
+            label={(index + 1).toString()}
+            // clusterer={clusterer}
+            draggable
+            onClick={() => handleDeleteMarker(marker.id)}
+            onDragEnd={(event) => handleMarkerDragEnd(marker.id, event)}
+          />
+        ))}
+      </GoogleMap>
+    </LoadScript>
   );
 };
+
 export default MapContainer;
