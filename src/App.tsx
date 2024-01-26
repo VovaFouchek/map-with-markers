@@ -1,9 +1,9 @@
-import Main from './components/Main';
+import MapContainer from './components/MapContainer';
 
 import './firebase';
 
 const App = () => {
-  return <Main />;
+  return <MapContainer />;
 };
 
 export default App;
