@@ -13,7 +13,7 @@ const styleContainer = { width: '90vw', height: '90vh', margin: 'auto' };
 let labelIndex = 1;
 
 const MapContainer = () => {
-  const { markers, setMarkers, addQuestMarker, updateQuestMarker, deleteQuestMarker } = useFirestoreMarkers();
+  const { markers, setMarkers, updateQuestMarker, deleteQuestMarker } = useFirestoreMarkers();
 
   const getNextLabel = () => {
     const label = labelIndex++;

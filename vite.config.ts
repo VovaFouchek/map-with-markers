@@ -17,7 +17,8 @@ export default defineConfig({
       '@helpers': path.resolve(__dirname, './src/helpers'),
     },
   },
-  plugins: [react(),
+  plugins: [
+    react(),
     checker({
       typescript: true,
       eslint: {
@@ -25,4 +26,5 @@ export default defineConfig({
       },
     }),
   ],
+  base: '/map-with-markers',
 });

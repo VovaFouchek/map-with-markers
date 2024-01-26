@@ -1,6 +1,6 @@
 export interface IQuest {
   id: string;
   location: google.maps.LatLngLiteral;
-  label?: string;
+  label: string;
   timeStamp: string;
 }
