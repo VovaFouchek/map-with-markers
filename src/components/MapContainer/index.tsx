@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-/* eslint-disable prettier/prettier */
-
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { nanoid } from 'nanoid';
 import { IQuest } from '@shared/interfaces';
@@ -11,7 +9,13 @@ const INITIAL_ZOOM = 8;
 const styleContainer = { width: '90vw', height: '100vh', margin: 'auto' };
 
 const MapContainer = () => {
-  const { markers, setMarkers, addQuestMarker, updateQuestMarker, deleteQuestMarker } = useFirestoreMarkers();
+  const {
+    markers,
+    setMarkers,
+    addQuestMarker,
+    updateQuestMarker,
+    deleteQuestMarker,
+  } = useFirestoreMarkers();
 
   const handleMapClick = (event: google.maps.MapMouseEvent) => {
     const newMarker: IQuest = {
@@ -23,7 +27,7 @@ const MapContainer = () => {
       label: (markers.length + 1).toString(),
       timeStamp: new Date().toISOString(),
     };
-    addQuestMarker(newMarker)
+    addQuestMarker(newMarker);
     setMarkers((prevMarkers) => [...prevMarkers, newMarker]);
   };
 
@@ -37,16 +41,17 @@ const MapContainer = () => {
         lng: event.latLng!.lng(),
       },
       timeStamp: new Date().toISOString(),
-    }
+    };
 
-    const newMarkers = markers.map((marker) =>
-      marker.id === id
-        ? {
+    const newMarkers = markers.map((marker) => {
+      if (marker.id === id) {
+        return {
           ...marker,
-          updatedMarker
-        }
-        : marker
-    );
+          updatedMarker,
+        };
+      }
+      return marker;
+    });
     updateQuestMarker(id, updatedMarker);
     setMarkers(newMarkers);
   };
@@ -67,7 +72,7 @@ const MapContainer = () => {
         center={INITIAL_POSITION}
         zoom={INITIAL_ZOOM}
       >
-        {markers?.map((marker) => (
+        {markers.map((marker) => (
           <Marker
             key={marker.id}
             position={marker.location}

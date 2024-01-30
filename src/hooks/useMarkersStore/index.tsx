@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-/* eslint-disable @typescript-eslint/no-shadow */
 import { useState, useEffect } from 'react';
 import {
   collection,
@@ -23,7 +22,7 @@ const useFirestoreMarkers = () => {
     const markersQuery = query(markersCollection);
 
     const unsubscribe = onSnapshot(markersQuery, (snapshot) => {
-      const data = snapshot.docs.map((doc) => doc.data() as IQuest);
+      const data = snapshot.docs.map((document) => document.data() as IQuest);
       setMarkers(data);
     });
 
@@ -38,7 +37,7 @@ const useFirestoreMarkers = () => {
 
       markers.forEach((marker) => {
         const markerRef = doc(db, 'markers', marker.id);
-        if (markerRef.id === `${marker.id}`) {
+        if (markerRef.id === marker.id) {
           updatedMarkers.push(marker);
         }
       });
@@ -46,8 +45,9 @@ const useFirestoreMarkers = () => {
       if (updatedMarkers.length > 0) {
         const batch = writeBatch(db);
         updatedMarkers.sort(
-          (a, b) =>
-            new Date(a.timeStamp).getTime() - new Date(b.timeStamp).getTime()
+          (markerA, markerB) =>
+            new Date(markerA.timeStamp).getTime() -
+            new Date(markerB.timeStamp).getTime()
         );
 
         updatedMarkers.forEach((marker, index) => {
@@ -55,7 +55,11 @@ const useFirestoreMarkers = () => {
           batch.update(markerRef, { label: `${index + 1}` });
         });
 
-        await batch.commit();
+        try {
+          await batch.commit();
+        } catch (error) {
+          throw new Error('Error executing batch...');
+        }
       }
     };
 

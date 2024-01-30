@@ -1,4 +1,3 @@
-/* eslint-disable no-plusplus */
 import { useCallback, useState } from 'react';
 
 import { APIProvider, Map, MapMouseEvent } from '@vis.gl/react-google-maps';
@@ -21,7 +20,7 @@ const MapContainer = () => {
     const marker = {
       id: nanoid(),
       location,
-      label: LABELS[labelIndex++ % LABELS.length],
+      label: LABELS[(labelIndex += 1 % LABELS.length)],
       timeStamp: new Date().toISOString(),
     };
 
